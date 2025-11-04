@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import matplotlib.ticker as ticker
 import sys
 
 
@@ -65,7 +66,11 @@ def calc_faultplane_from_pca(components, eigenvalues):
 
 
 ################################################################################
-def perform_pca_analysis(df, confidence_factor = 2.0, verbose=False ):
+# 1.645 : 90 %
+# 1.960 : 95 %
+# 2.576 : 99 %
+#
+def perform_pca_analysis(df, confidence_factor = 1.960, verbose=False ):
     ref_lat = df['lat'].mean()
     ref_lon = df['lon'].mean()
 
@@ -103,8 +108,8 @@ def perform_pca_analysis(df, confidence_factor = 2.0, verbose=False ):
     largest_two_indices = np.argsort(eigenvalues)[-2:][::-1]  
     pc1_idx, pc2_idx = largest_two_indices
 
-    strike_length = 2 * np.sqrt(eigenvalues[pc1_idx])  
-    dip_length = 2 * np.sqrt(eigenvalues[pc2_idx])     
+    strike_length = 2 * np.sqrt(eigenvalues[pc1_idx]) * confidence_factor
+    dip_length = 2 * np.sqrt(eigenvalues[pc2_idx])  * confidence_factor    
 
     if verbose:
         print(f"Length of Strike direction: {strike_length:.2f} km")
@@ -182,6 +187,9 @@ def plot_3d_with_plane( df, view_elev=20, view_azim=240, planedf=None,
     ax.set_xlabel("Longitude")
     ax.set_ylabel("Latitude")
     ax.set_zlabel("Depth (km)")
+    hformatter= ticker.StrMethodFormatter('{x:9.4f}')
+    ax.yaxis.set_major_formatter(hformatter)
+    ax.xaxis.set_major_formatter(hformatter)
 
     # Reverse z-axis (downward positive)
     ax.set_zlim(df["depth_km"].max(), df["depth_km"].min())
