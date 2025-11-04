@@ -192,8 +192,8 @@ def plot_3d_with_plane( df, view_elev=20, view_azim=240, planedf=None,
     ax.xaxis.set_major_formatter(hformatter)
 
     # Reverse z-axis (downward positive)
-    ax.set_zlim(df["depth_km"].max(), df["depth_km"].min())
-
+    ax.set_zlim(df["depth_km"].max()*1.2, df["depth_km"].min()*0.8)
+        
     # Set viewing angle
     ax.view_init(elev=view_elev, azim=view_azim)
 
